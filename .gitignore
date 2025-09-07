@@ -1,0 +1,25 @@
+# 仮想環境
+venv/
+ENV/
+env/
+.venv/
+
+# Python キャッシュ
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite データベース（ユーザー情報やテストデータを含む場合は除外）
+#s*.db
+
+# VSCode 設定
+.vscode/
+
+# Streamlit の設定キャッシュ
+.streamlit/secrets.toml
+.streamlit/
+
+# OS ごとの不要ファイル
+.DS_Store
+Thumbs.db
