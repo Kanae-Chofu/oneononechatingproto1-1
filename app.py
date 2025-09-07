@@ -168,9 +168,9 @@ def main():
         # 表示（上が古い、下が新しい） — スタイルを簡単に
         for sender, recipient, content, ts in conv:
             if sender == st.session_state.user:
-                st.markdown(f"<div style='text-align: right; background:#e6ffe6; padding:6px; border-radius:6px; margin:6px 0'>{content}<div style='font-size:10px; color:#666'>{ts}</div></div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='text-align: right; background:#000000; padding:6px; border-radius:6px; margin:6px 0'>{content}<div style='font-size:10px; color:#666'>{ts}</div></div>", unsafe_allow_html=True)
             else:
-                st.markdown(f"<div style='text-align: left; background:#f0f0f0; padding:6px; border-radius:6px; margin:6px 0'>{content}<div style='font-size:10px; color:#666'>{ts}</div></div>", unsafe_allow_html=True)
+                st.markdown(f"<div style='text-align: left; background:#000000; padding:6px; border-radius:6px; margin:6px 0'>{content}<div style='font-size:10px; color:#666'>{ts}</div></div>", unsafe_allow_html=True)
 
         st.markdown("---")
         # 送信フォーム（Enterでも、ボタンでもOK）をフォームで作ると扱いやすい
