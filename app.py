@@ -3,8 +3,20 @@ import streamlit as st
 import sqlite3
 import datetime
 import bcrypt
+import time
 
 DB_FILE = "chat.db"
+
+REFRESH_INTERVAL = 5  # 秒
+
+if "last_refresh" not in st.session_state:
+    st.session_state.last_refresh = time.time()
+
+# 5秒ごとにページを再実行
+if time.time() - st.session_state.last_refresh > REFRESH_INTERVAL:
+    st.session_state.last_refresh = time.time()
+    st.rerun()
+
 
 # --- DB 初期化 ---
 def init_db():
