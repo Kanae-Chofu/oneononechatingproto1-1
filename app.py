@@ -69,9 +69,9 @@ def get_messages(user, partner):
 
 # ---------------- Streamlit UI ----------------
 
-st.title("1対1チャットSNS (β版)")
+st.set_page_config(page_title="チャットSNS", layout="centered")
+st.title("📱 1対1チャットSNS（β版）")
 
-# 🔄 5秒ごとに自動更新
 st_autorefresh(interval=5000, key="chat_autorefresh")
 
 # セッション管理
@@ -80,26 +80,26 @@ if "username" not in st.session_state:
 if "partner" not in st.session_state:
     st.session_state.partner = None
 
-menu = ["ログイン", "新規登録"]
-choice = st.sidebar.selectbox("メニュー", menu)
+# メニュー選択（ラジオボタンで画面上部に配置）
+menu = st.radio("操作を選択してください", ["新規登録", "ログイン"], horizontal=True)
 
 # 新規登録
-if choice == "新規登録":
+if menu == "新規登録":
     st.subheader("新規登録")
-    new_user = st.text_input("ユーザー名")
-    new_pass = st.text_input("パスワード", type="password")
-    if st.button("登録"):
+    new_user = st.text_input("ユーザー名を入力")
+    new_pass = st.text_input("パスワードを入力", type="password")
+    if st.button("登録", use_container_width=True):
         if register_user(new_user, new_pass):
             st.success("登録成功！ログインしてください")
         else:
             st.error("このユーザー名は既に使われています")
 
 # ログイン
-elif choice == "ログイン":
+elif menu == "ログイン":
     st.subheader("ログイン")
     user = st.text_input("ユーザー名")
     pw = st.text_input("パスワード", type="password")
-    if st.button("ログイン"):
+    if st.button("ログイン", use_container_width=True):
         if login_user(user, pw):
             st.session_state.username = user
             st.success(f"{user} でログインしました！")
@@ -108,23 +108,26 @@ elif choice == "ログイン":
 
 # チャット画面
 if st.session_state.username:
-    st.sidebar.write(f"ログイン中: {st.session_state.username}")
-    partner = st.sidebar.text_input("チャット相手のユーザー名を入力", st.session_state.partner or "")
+    st.divider()
+    st.subheader("チャット画面")
+    st.write(f"ログイン中ユーザー: `{st.session_state.username}`")
+
+    partner = st.text_input("チャット相手のユーザー名", st.session_state.partner or "")
     if partner:
         st.session_state.partner = partner
-        st.subheader(f" {st.session_state.username} ⇔ {partner} のチャット")
+        st.write(f"チャット相手: `{partner}`")
 
         # メッセージ表示
         messages = get_messages(st.session_state.username, partner)
         for sender, msg, ts in messages:
             if sender == st.session_state.username:
-                st.write(f"**あなた** ({ts}): {msg}")
+                st.markdown(f"**あなた** ({ts}): {msg}")
             else:
-                st.write(f"**{sender}** ({ts}): {msg}")
+                st.markdown(f"**{sender}** ({ts}): {msg}")
 
         # メッセージ送信
         new_message = st.text_input("メッセージを入力")
-        if st.button("送信"):
+        if st.button("送信", use_container_width=True):
             if new_message.strip():
                 save_message(st.session_state.username, partner, new_message)
                 st.rerun()
