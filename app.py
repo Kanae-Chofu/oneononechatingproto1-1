@@ -137,7 +137,7 @@ if st.session_state.username:
                 st.markdown(
                     f"""
                     <div style='text-align: left; margin: 5px 0;'>
-                        <span style='background-color:#70C6F5; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%; border:1px solid #ccc;'>
+                        <span style='background-color:#426AB3; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%; border:1px solid #ccc;'>
                             {msg}
                         </span>
                     </div>
