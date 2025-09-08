@@ -119,11 +119,31 @@ if st.session_state.username:
 
         # メッセージ表示
         messages = get_messages(st.session_state.username, partner)
-        for sender, msg, ts in messages:
+        for sender, msg, _ in messages:
             if sender == st.session_state.username:
-                st.markdown(f"**あなた**: {msg}")
+                # 自分のメッセージ（右揃え・緑）
+                st.markdown(
+                    f"""
+                    <div style='text-align: right; margin: 5px 0;'>
+                        <span style='background-color:#1F2F54; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%;'>
+                            {msg}
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
             else:
-                st.markdown(f"**{sender}**: {msg}")
+                # 相手のメッセージ（左揃え・白）
+                st.markdown(
+                    f"""
+                    <div style='text-align: left; margin: 5px 0;'>
+                        <span style='background-color:#FFFFFF; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%; border:1px solid #ccc;'>
+                            {msg}
+                        </span>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
 
         # メッセージ送信
         new_message = st.text_input("メッセージを入力")
