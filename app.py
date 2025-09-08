@@ -121,9 +121,9 @@ if st.session_state.username:
         messages = get_messages(st.session_state.username, partner)
         for sender, msg, ts in messages:
             if sender == st.session_state.username:
-                st.markdown(f"**あなた** ({ts}): {msg}")
+                st.markdown(f"**あなた**: {msg}")
             else:
-                st.markdown(f"**{sender}** ({ts}): {msg}")
+                st.markdown(f"**{sender}**: {msg}")
 
         # メッセージ送信
         new_message = st.text_input("メッセージを入力")
