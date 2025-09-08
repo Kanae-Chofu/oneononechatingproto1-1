@@ -3,6 +3,34 @@ import sqlite3
 import bcrypt
 from streamlit_autorefresh import st_autorefresh
 
+# 🌙 ダークモード固定＋背景色変更
+st.markdown(
+    """
+    <style>
+    body, .stApp {
+        background-color: #000000;
+        color: #FFFFFF;
+    }
+    div[data-testid="stHeader"] {
+        background-color: #000000;
+    }
+    div[data-testid="stToolbar"] {
+        display: none;
+    }
+    input, textarea {
+        background-color: #1F2F54 !important;
+        color: #FFFFFF !important;
+    }
+    button {
+        background-color: #426AB3 !important;
+        color: #FFFFFF !important;
+        border: none !important;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # データベース初期化
 def init_db():
     conn = sqlite3.connect("chat.db")
@@ -17,6 +45,10 @@ def init_db():
                     receiver TEXT,
                     message TEXT,
                     timestamp DATETIME DEFAULT CURRENT_TIMESTAMP)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS friends (
+                    user TEXT,
+                    friend TEXT,
+                    UNIQUE(user, friend))''')
     conn.commit()
     conn.close()
 
@@ -67,10 +99,22 @@ def get_messages(user, partner):
     conn.close()
     return messages
 
-# ---------------- Streamlit UI ----------------
+# 友達追加処理
+def add_friend(user, friend):
+    conn = sqlite3.connect("chat.db")
+    c = conn.cursor()
+    try:
+        c.execute("INSERT INTO friends (user, friend) VALUES (?, ?)", (user, friend))
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+    finally:
+        conn.close()
 
-st.set_page_config(page_title="チャットSNS", layout="centered")
-st.title("📱 1対1チャットSNS（β版）")
+# Streamlit UI
+st.set_page_config(page_title="チャットSNSメビウス", layout="centered")
+st.title("💬 1対1チャットSNSメビウス（α版）")
 
 st_autorefresh(interval=5000, key="chat_autorefresh")
 
@@ -80,12 +124,12 @@ if "username" not in st.session_state:
 if "partner" not in st.session_state:
     st.session_state.partner = None
 
-# メニュー選択（ラジオボタンで画面上部に配置）
+# メニュー選択
 menu = st.radio("操作を選択してください", ["新規登録", "ログイン"], horizontal=True)
 
 # 新規登録
 if menu == "新規登録":
-    st.subheader("新規登録")
+    st.subheader("🆕 新規登録")
     new_user = st.text_input("ユーザー名を入力")
     new_pass = st.text_input("パスワードを入力", type="password")
     if st.button("登録", use_container_width=True):
@@ -96,7 +140,7 @@ if menu == "新規登録":
 
 # ログイン
 elif menu == "ログイン":
-    st.subheader("ログイン")
+    st.subheader("🔐 ログイン")
     user = st.text_input("ユーザー名")
     pw = st.text_input("パスワード", type="password")
     if st.button("ログイン", use_container_width=True):
@@ -109,7 +153,7 @@ elif menu == "ログイン":
 # チャット画面
 if st.session_state.username:
     st.divider()
-    st.subheader("チャット画面")
+    st.subheader("📱 チャット画面")
     st.write(f"ログイン中ユーザー: `{st.session_state.username}`")
 
     partner = st.text_input("チャット相手のユーザー名", st.session_state.partner or "")
@@ -117,15 +161,21 @@ if st.session_state.username:
         st.session_state.partner = partner
         st.write(f"チャット相手: `{partner}`")
 
-        # メッセージ表示
+        # 友達追加ボタン
+        if st.button("このユーザーを友達に追加", use_container_width=True):
+            if add_friend(st.session_state.username, partner):
+                st.success(f"{partner} を友達に追加しました！")
+            else:
+                st.info(f"{partner} はすでに友達に追加されています")
+
+        # メッセージ表示（左右揃え・ダークトーン）
         messages = get_messages(st.session_state.username, partner)
         for sender, msg, _ in messages:
             if sender == st.session_state.username:
-                # 自分のメッセージ（右揃え・緑）
                 st.markdown(
                     f"""
                     <div style='text-align: right; margin: 5px 0;'>
-                        <span style='background-color:#1F2F54; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%;'>
+                        <span style='background-color:#1F2F54; color:#FFFFFF; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%;'>
                             {msg}
                         </span>
                     </div>
@@ -133,11 +183,10 @@ if st.session_state.username:
                     unsafe_allow_html=True
                 )
             else:
-                # 相手のメッセージ（左揃え・白）
                 st.markdown(
                     f"""
                     <div style='text-align: left; margin: 5px 0;'>
-                        <span style='background-color:#426AB3; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%; border:1px solid #ccc;'>
+                        <span style='background-color:#426AB3; color:#FFFFFF; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%; border:1px solid #ccc;'>
                             {msg}
                         </span>
                     </div>
