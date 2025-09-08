@@ -112,19 +112,19 @@ if st.session_state.username:
     partner = st.sidebar.text_input("チャット相手のユーザー名を入力", st.session_state.partner or "")
     if partner:
         st.session_state.partner = partner
-        st.subheader(f"💬 {st.session_state.username} ⇔ {partner} のチャット")
+        st.subheader(f" {st.session_state.username} ⇔ {partner} のチャット")
 
         # メッセージ表示
         messages = get_messages(st.session_state.username, partner)
         for sender, msg, ts in messages:
             if sender == st.session_state.username:
-                st.write(f"🟢 **あなた** ({ts}): {msg}")
+                st.write(f"**あなた** ({ts}): {msg}")
             else:
-                st.write(f"🔵 **{sender}** ({ts}): {msg}")
+                st.write(f"**{sender}** ({ts}): {msg}")
 
         # メッセージ送信
         new_message = st.text_input("メッセージを入力")
         if st.button("送信"):
             if new_message.strip():
                 save_message(st.session_state.username, partner, new_message)
-                st.experimental_rerun()
+                st.rerun()
