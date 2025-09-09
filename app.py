@@ -140,7 +140,7 @@ if menu == "新規登録":
 
 # ログイン
 elif menu == "ログイン":
-    st.subheader("🔐 ログイン")
+    st.subheader(" ログイン")
     user = st.text_input("ユーザー名")
     pw = st.text_input("パスワード", type="password")
     if st.button("ログイン", use_container_width=True):
@@ -153,7 +153,7 @@ elif menu == "ログイン":
 # チャット画面
 if st.session_state.username:
     st.divider()
-    st.subheader("📱 チャット画面")
+    st.subheader("チャット画面")
     st.write(f"ログイン中ユーザー: `{st.session_state.username}`")
 
     partner = st.text_input("チャット相手のユーザー名", st.session_state.partner or "")
@@ -194,9 +194,7 @@ if st.session_state.username:
                     unsafe_allow_html=True
                 )
 
-        # メッセージ送信
-        new_message = st.text_input("メッセージを入力")
-        if st.button("送信", use_container_width=True):
-            if new_message.strip():
-                save_message(st.session_state.username, partner, new_message)
-                st.rerun()
+        new_message = st.chat_input("メッセージを入力してください")
+        if new_message:
+            save_message(st.session_state.username, partner, new_message)
+            st.rerun()
