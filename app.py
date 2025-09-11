@@ -99,7 +99,7 @@ def get_messages(user, partner):
     conn.close()
     return messages
 
-# 友達追加処理
+# 友達追加
 def add_friend(user, friend):
     conn = sqlite3.connect("chat.db")
     c = conn.cursor()
@@ -112,9 +112,18 @@ def add_friend(user, friend):
     finally:
         conn.close()
 
+# 友達一覧取得
+def get_friends(user):
+    conn = sqlite3.connect("chat.db")
+    c = conn.cursor()
+    c.execute("SELECT friend FROM friends WHERE user = ?", (user,))
+    friends = [row[0] for row in c.fetchall()]
+    conn.close()
+    return friends
+
 # Streamlit UI
 st.set_page_config(page_title="チャットSNSメビウス", layout="centered")
-st.title("💬 1対1チャットSNSメビウス（α版）")
+st.title("1対1チャットSNSメビウス（α版）")
 
 st_autorefresh(interval=5000, key="chat_autorefresh")
 
@@ -140,7 +149,7 @@ if menu == "新規登録":
 
 # ログイン
 elif menu == "ログイン":
-    st.subheader(" ログイン")
+    st.subheader("🔐 ログイン")
     user = st.text_input("ユーザー名")
     pw = st.text_input("パスワード", type="password")
     if st.button("ログイン", use_container_width=True):
@@ -153,10 +162,21 @@ elif menu == "ログイン":
 # チャット画面
 if st.session_state.username:
     st.divider()
-    st.subheader("チャット画面")
+    st.subheader("💬 チャット画面")
     st.write(f"ログイン中ユーザー: `{st.session_state.username}`")
 
-    partner = st.text_input("チャット相手のユーザー名", st.session_state.partner or "")
+    # 友達一覧表示
+    friends = get_friends(st.session_state.username)
+    if friends:
+        st.markdown("### 👥 友達一覧")
+        selected_friend = st.selectbox("チャット相手を選択", friends, index=friends.index(st.session_state.partner) if st.session_state.partner in friends else 0)
+        st.session_state.partner = selected_friend
+        st.write(f"チャット相手: `{selected_friend}`")
+    else:
+        st.info("まだ友達がいません。ユーザー名を入力して友達追加してください。")
+
+    # チャット相手手動入力（オプション）
+    partner = st.text_input("チャット相手のユーザー名を手動入力", st.session_state.partner or "")
     if partner:
         st.session_state.partner = partner
         st.write(f"チャット相手: `{partner}`")
@@ -168,33 +188,33 @@ if st.session_state.username:
             else:
                 st.info(f"{partner} はすでに友達に追加されています")
 
-        # メッセージ表示（左右揃え・ダークトーン）
-        messages = get_messages(st.session_state.username, partner)
-        for sender, msg, _ in messages:
-            if sender == st.session_state.username:
-                st.markdown(
-                    f"""
-                    <div style='text-align: right; margin: 5px 0;'>
-                        <span style='background-color:#1F2F54; color:#FFFFFF; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%;'>
-                            {msg}
-                        </span>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
-            else:
-                st.markdown(
-                    f"""
-                    <div style='text-align: left; margin: 5px 0;'>
-                        <span style='background-color:#426AB3; color:#FFFFFF; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%; border:1px solid #ccc;'>
-                            {msg}
-                        </span>
-                    </div>
-                    """,
-                    unsafe_allow_html=True
-                )
+    # メッセージ表示（左右揃え・ダークトーン）
+    messages = get_messages(st.session_state.username, st.session_state.partner)
+    for sender, msg, _ in messages:
+        if sender == st.session_state.username:
+            st.markdown(
+                f"""
+                <div style='text-align: right; margin: 5px 0;'>
+                    <span style='background-color:#1F2F54; color:#FFFFFF; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%;'>
+                        {msg}
+                    </span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+            st.markdown(
+                f"""
+                <div style='text-align: left; margin: 5px 0;'>
+                    <span style='background-color:#426AB3; color:#FFFFFF; padding:8px 12px; border-radius:10px; display:inline-block; max-width:80%; border:1px solid #ccc;'>
+                        {msg}
+                    </span>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
 
-        new_message = st.chat_input("メッセージを入力してください")
-        if new_message:
-            save_message(st.session_state.username, partner, new_message)
-            st.rerun()
+    new_message = st.chat_input("メッセージを入力")
+    if new_message:
+        save_message(st.session_state.username, st.session_state.partner, new_message)
+        st.rerun()
