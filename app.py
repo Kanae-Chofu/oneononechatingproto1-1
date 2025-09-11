@@ -165,14 +165,14 @@ if st.session_state.username:
     st.subheader("💬 チャット画面")
     st.write(f"ログイン中ユーザー: `{st.session_state.username}`")
 
-    # 👥 友達一覧表示（リスト形式）
-    st.markdown("### 👥 友達一覧")
-    friends = get_friends(st.session_state.username)
-    if friends:
-        for f in friends:
-            st.markdown(f"- `{f}`")
-    else:
-        st.info("まだ友達はいません。ユーザー名を入力して友達追加してください。")
+    # 👥 友達一覧表示（折りたたみ式）
+    with st.expander("👥 友達一覧を表示／非表示", expanded=True):
+        friends = get_friends(st.session_state.username)
+        if friends:
+            for f in friends:
+                st.markdown(f"- `{f}`")
+        else:
+            st.info("まだ友達はいません。ユーザー名を入力して友達追加してください。")
 
     # ✍️ チャット相手の手動入力
     partner = st.text_input("チャット相手のユーザー名を入力", st.session_state.partner or "")
