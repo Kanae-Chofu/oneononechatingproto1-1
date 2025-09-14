@@ -137,10 +137,24 @@ def calc_feedback_percentages(messages, current_user):
     short_rate = sum(1 for m in user_msgs if len(m) <= 10) / total * 100
     question_rate = sum(1 for m in user_msgs if "?" in m or "？" in m) / total * 100
 
-    positive_words = ["楽しい", "うれしい", "いいね", "すごい", "ありがとう"]
+    positive_words = [
+    "楽しい", "うれしい", "いいね", "すごい", "ありがとう",
+    "助かる", "安心した", "癒される", "共感する", "好き",
+    "最高", "素敵", "嬉しい", "面白い", "笑った", "愛してる",
+    "頑張る", "応援", "素晴らしい", "感謝", "幸せ",
+    "素敵だね", "素晴らしいね", "いい感じ", 
+    "感動した", "ほっとした", 
+    "応援してる", "心地いい", "気持ちいい", "前向き", "元気出た"
+    ]
     pos_rate = sum(1 for m in user_msgs if any(w in m for w in positive_words)) / total * 100
 
-    negative_words = ["疲れた", "無理", "いやだ", "嫌い", "最悪"]
+    negative_words = [
+    "疲れた", "無理", "いやだ", "嫌い", "最悪",
+    "つらい", "悲しい", "孤独", "不安", "怖い",
+    "怒ってる", "イライラ", "しんどい", "泣きたい", "やめたい",
+    "落ち込む", "どうでもいい", "興味ない", "めんどくさい", "うんざり",
+    "拒絶された", "傷ついた", "寂しい", "不快", "混乱してる"
+    ]
     neg_rate = sum(1 for m in user_msgs if any(w in m for w in negative_words)) / total * 100
 
     return {
