@@ -153,7 +153,7 @@ def calc_feedback_percentages(messages, current_user):
     "つらい", "悲しい", "孤独", "不安", "怖い",
     "怒ってる", "イライラ", "しんどい", "泣きたい", "やめたい",
     "落ち込む", "どうでもいい", "興味ない", "うんざり",
-    ,"寂しい", "不快", "後悔", "失敗", "絶望", 
+    "寂しい", "不快", "後悔", "失敗", "絶望", 
     ]
     neg_rate = sum(1 for m in user_msgs if any(w in m for w in negative_words)) / total * 100
 
