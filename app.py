@@ -121,6 +121,37 @@ def get_friends(user):
     conn.close()
     return friends
 
+
+# --- 📊 会話フィードバック機能 ---
+def calc_feedback_percentages(messages, current_user):
+    if not messages:
+        return {}
+
+    # 自分の発言だけ抽出
+    user_msgs = [m for s, m, _ in messages if s == current_user]
+    total = len(user_msgs)
+    if total == 0:
+        return {}
+
+    avg_len = sum(len(m) for m in user_msgs) / total
+    short_rate = sum(1 for m in user_msgs if len(m) <= 10) / total * 100
+    question_rate = sum(1 for m in user_msgs if "?" in m or "？" in m) / total * 100
+
+    positive_words = ["楽しい", "うれしい", "いいね", "すごい", "ありがとう"]
+    pos_rate = sum(1 for m in user_msgs if any(w in m for w in positive_words)) / total * 100
+
+    negative_words = ["疲れた", "無理", "いやだ", "嫌い", "最悪"]
+    neg_rate = sum(1 for m in user_msgs if any(w in m for w in negative_words)) / total * 100
+
+    return {
+        "平均文字数": round(avg_len, 1),
+        "短文率": round(short_rate, 1),
+        "質問率": round(question_rate, 1),
+        "ポジティブ語率": round(pos_rate, 1),
+        "ネガティブ語率": round(neg_rate, 1),
+    }
+
+
 # Streamlit UI
 st.set_page_config(page_title="チャットSNSメビウス", layout="centered")
 st.title("1対1チャットSNSメビウス（α版）")
@@ -219,3 +250,16 @@ if st.session_state.username:
         if new_message:
             save_message(st.session_state.username, st.session_state.partner, new_message)
             st.rerun()
+
+        # 📊 フィードバック表示
+        if st.button("📊 この会話の統計を見る", use_container_width=True):
+            stats = calc_feedback_percentages(messages, st.session_state.username)
+            if stats:
+                st.subheader("📊 会話フィードバック（自分の発言のみ）")
+                for k, v in stats.items():
+                    if k == "平均文字数":
+                        st.write(f"{k}: {v}")
+                    else:
+                        st.write(f"{k}: {v}%")
+            else:
+                st.info("まだ自分の発言がありません。")
